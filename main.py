@@ -1,4 +1,8 @@
 #encoding:utf-8
+'''
+    V 1.0 自动生成java类以及相应的增删改查工具
+    在DATA_BASE_CONFIG 下配置数据库信息，以及制定的表即可
+'''
 import codecs
 import os
 import pymysql
@@ -160,7 +164,6 @@ def generate_java_pojo(table_data):
     if table_data is None:
         raise Exception("表数据获取异常")
     class_name = table_data.get_class_name()
-    print(class_name)
     package_name = DATA_BASE_CONFIG.PACKAGE_NAME
     field_list = table_data.get_field_list()
     if field_list is None:
@@ -178,10 +181,17 @@ def generate_java_pojo(table_data):
 
 
 def generate_mybatis_select(method_id,result_type,fields,table_name,pri_key,pri_property):
-    template = '''\t<select id="%s" resultType="%s">
+    template = '''\t<select id="%s" resultType="%s" parameterType="%s">
     \t\tSELECT %s \t\t\tFROM `%s` WHERE `%s`=#{%s};
 \t</select>
-'''%(method_id,result_type,fields,table_name,pri_key,pri_property)
+'''%(method_id,result_type,result_type,fields,table_name,pri_key,pri_property)
+    return template
+
+def generate_mybatis_select_pri(method_id,result_type,fields,table_name,pri_key):
+    template = '''\t<select id="%sPri" resultType="%s">
+    \t\tSELECT %s \t\t\tFROM `%s` WHERE `%s`=#{0};
+\t</select>
+'''%(method_id,result_type,fields,table_name,pri_key)
     return template
 
 def generate_mybatis_insert(method_id,table_name,fields,values,parameter_type):
@@ -254,13 +264,35 @@ def generate_mybatis_xml(table_data):
     content += generate_mybatis_delete(table_data.get_delete_method_id(),table_name,pri_key,pri_property)
     content += generate_mybatis_update(table_data.get_update_method_id(),result_type,table_name,update_fields,pri_key,pri_property)
     content += generate_mybatis_select(table_data.get_select_method_id(),result_type,as_fields,table_name,pri_key,pri_property)
+    content += generate_mybatis_select_pri(table_data.get_select_method_id(),result_type,as_fields,table_name,pri_key)
 
     with codecs.open(file_name,"w","utf-8") as f:
         f.write(generate_mybatis_sql(namespace,content))
 
+def get_tables(table_name):
+    tables = []
+    connection = getConnection()
+    if connection is None:
+        raise Exception("数据库连接失败")
+    try:
+        cursor = connection.cursor()
+        cursor.execute("SHOW TABLES LIKE '%s'"%('%'+table_name+'%'))
+        result = cursor.fetchall()
+        if result is None:
+            raise Exception("未查询到含有[%s]的表"%table_name)
+        for row in result:
+            tables.append(row[0])
+        return tables
+    except:
+        traceback.print_exc()
+
 if __name__ == "__main__":
     print("START GENERATOR ...")
-    data = generateTableData("charge_order")
-    generate_java_pojo(data)
-    generate_mybatis_xml(data)
+    tables = get_tables(DATA_BASE_CONFIG.TARGET_TABLE_NAME)
+    if tables is None or len(tables) == 0:
+        raise Exception("未找到[%s]相关表"%DATA_BASE_CONFIG.TARGET_TABLE_NAME)
+    for table in tables:
+        data = generateTableData(table)
+        generate_java_pojo(data)
+        generate_mybatis_xml(data)
     print("MISSION COMPLETE")
