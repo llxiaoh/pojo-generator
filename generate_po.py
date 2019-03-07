@@ -12,7 +12,7 @@ sys.setdefaultencoding("utf-8")
 
 
 def generate_java_pojo_template(java_name,package_name,content,get_set_content):
-    template = '''package %s.bean.po
+    template = '''package %s.bean.po;
 
 public class %s{
 %s
@@ -30,6 +30,7 @@ def generate_java_pojo_content_template(java_type,name,explain):
     return template
 
 def generate_java_pojo_getset_content_template(java_type,name,explain):
+    sname = name[0].title()+name[1:]
     template = '''
     /** 获取%s */
     public %s get%s(){
@@ -39,7 +40,7 @@ def generate_java_pojo_getset_content_template(java_type,name,explain):
     public void set%s(%s %s){
         this.%s = %s;
     }
-'''%(explain,java_type,name.title(),name,explain,name.title(),java_type,name,name,name)
+'''%(explain,java_type,sname,name,explain,sname,java_type,name,name,name)
     return template
 
 def generate_java_pojo(table_data,package_name,config_dir):

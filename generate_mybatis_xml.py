@@ -78,20 +78,30 @@ def generate_mybatis_xml(table_data,config_dir):
     pri_key = None
     pri_property = None
     for field in field_list:
-        column_fields += "\t\t\t\t,`%s` \r\n"%field.get_column_name()
-        property_fields += "\t\t\t\t,#{%s} \r\n"%field.get_property_name()
+        if len(column_fields) == 0:
+            column_fields += "\t\t\t\t<if test='%s != null'>`%s`</if> \r\n" % (field.get_property_name(), field.get_column_name())
+        else:
+            column_fields += "\t\t\t\t<if test='%s != null'>,`%s`</if> \r\n"%(field.get_property_name(),field.get_column_name())
+
+        if len(property_fields) == 0:
+            property_fields += "\t\t\t\t<if test='%s != null'>#{%s}</if> \r\n" % (field.get_property_name(), field.get_property_name())
+        else:
+            property_fields += "\t\t\t\t<if test='%s != null'>,#{%s}</if> \r\n"%(field.get_property_name(),field.get_property_name())
         as_fields += "\t\t\t\t,`%s` as %s \r\n"%(field.get_column_name(),field.get_property_name())
         if field.get_pri_key():
             pri_key = field.get_column_name()
             pri_property = field.get_property_name()
         else:
-            update_fields += "\t\t\t\t,`%s`=#{%s}\r\n"%(field.get_column_name(),field.get_property_name())
+            if len(update_fields) == 0:
+                update_fields += "\t\t\t\t<if test='%s != null'>`%s`=#{%s}</if>\r\n" % (field.get_property_name(), field.get_column_name(), field.get_property_name())
+            else:
+                update_fields += "\t\t\t\t<if test='%s != null'>,`%s`=#{%s}</if>\r\n"%(field.get_property_name(),field.get_column_name(),field.get_property_name())
     if pri_key is None:
         raise Exception("未创建主键")
-    column_fields = column_fields[5:]
-    property_fields = property_fields[5:]
+    column_fields = column_fields[4:]
+    property_fields = property_fields[4:]
     as_fields = as_fields[5:]
-    update_fields = update_fields[5:]
+    update_fields = update_fields[4:]
     namespace = table_data.get_namespace()
     result_type = table_data.get_result_type()
     table_name = table_data.get_table_name()

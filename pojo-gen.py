@@ -15,15 +15,16 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 class DATA_BASE_CONFIG:
-    HOST = "127.0.0.1"
-    DB = "test"
+    HOST = ""
+    PORT =
+    DB = ""
     USERNAME = ""
     PASSWORD = ""
     CAMEL_STYLE=True
     TARGET_TABLE_NAME = ""
     GET_TABLE_FIELDS_SQL = "show full fields from %s";
     PACKAGE_NAME = ""
-    DIR = "./gen/"
+    DIR = ""
     GET_SQL_SEESION_CODE = ""
     DAO_IMPORTS = '''\r\n
 '''
@@ -50,7 +51,7 @@ class Field:
         if self.column_name is None:
             raise Exception("字段未赋值")
         if DATA_BASE_CONFIG.CAMEL_STYLE:
-            return getCamelName(self.column_name)
+            return "%s"%getCamelName(self.column_name)
         return self.column_name
     def get_comment(self):
         if self.column_desc is None:
@@ -86,7 +87,7 @@ class TableData:
     def get_select_method_id(self):
         return "select"+self.get_class_name()
     def get_result_type(self):
-        return self.package_name+"."+self.get_class_name()
+        return self.package_name+".bean.po."+self.get_class_name()
     def get_delete_method_id(self):
         return "delete"+self.get_class_name()
     def get_update_method_id(self):
@@ -127,7 +128,8 @@ def getConnection():
                            user=DATA_BASE_CONFIG.USERNAME,
                            passwd=DATA_BASE_CONFIG.PASSWORD,
                            charset="utf8",
-                           use_unicode=True,)
+                           use_unicode=True,
+                           port=DATA_BASE_CONFIG.PORT)
 
 def generateTableData(table_name):
     try:

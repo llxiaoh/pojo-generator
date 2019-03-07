@@ -53,9 +53,9 @@ def generate_java_dao(table_data,package,sql_get,config_dir,other_import):
 
 	class_explain = "DAO操作"
 
-	import_content = generate_dao_import(package+".po."+result_class_name)+other_import
+	import_content = generate_dao_import(package+".bean.po."+result_class_name)+other_import
 
-	import_package = package+".dao"
+	import_package = package+".bean.dao"
 
 	result_type_as_param = result_class_name[0].lower()+result_class_name[1:]
 
@@ -80,7 +80,8 @@ def generate_dao_import(import_java):
 	return template
 
 def generate_dao_get_list_method_template(explain,result_type,method_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -102,7 +103,8 @@ def generate_dao_get_list_method_template(explain,result_type,method_name,sql_ge
 	return template
 
 def generate_dao_get_one_method_template(explain,result_type,method_name,param_type,param_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -124,7 +126,8 @@ def generate_dao_get_one_method_template(explain,result_type,method_name,param_t
 	return template	
 
 def generate_dao_get_one_method_pri_template(explain,result_type,method_name,param_type,param_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -146,7 +149,8 @@ def generate_dao_get_one_method_pri_template(explain,result_type,method_name,par
 	return template		
 
 def generate_dao_insert_template(explain,method_name,param_type,param_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -159,6 +163,7 @@ def generate_dao_insert_template(explain,method_name,param_type,param_name,sql_g
 			log.error("%s#%s error",e);
 		}finally {
 			if(session != null) {
+				session.commit();
 				session.close();
 			}
 		}
@@ -168,7 +173,8 @@ def generate_dao_insert_template(explain,method_name,param_type,param_name,sql_g
 	return template
 
 def generate_dao_update_template(explain,method_name,param_type,param_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -181,6 +187,7 @@ def generate_dao_update_template(explain,method_name,param_type,param_name,sql_g
 			log.error("%s#%s error",e);
 		}finally {
 			if(session != null) {
+				session.commit();
 				session.close();
 			}
 		}
@@ -190,7 +197,8 @@ def generate_dao_update_template(explain,method_name,param_type,param_name,sql_g
 	return template
 
 def generate_dao_delete_template(explain,method_name,param_type,param_name,sql_get,select_id,class_name,namespace):
-	template = '''	/**
+	template = '''
+	/**
 	 * %s
 	 * @return
 	 */
@@ -203,6 +211,7 @@ def generate_dao_delete_template(explain,method_name,param_type,param_name,sql_g
 			log.error("%s#%s error",e);
 		}finally {
 			if(session != null) {
+				session.commit();
 				session.close();
 			}
 		}
